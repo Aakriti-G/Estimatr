@@ -1,0 +1,121 @@
+---
+title: "Guide to estimatr"
+author: "Aakriti"
+date: '2023-04-10'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Guide To Estimatr
+
+```{r}
+install.packages("estimatr")
+library(estimatr)
+
+
+```
+
+## What are robust standard errors?
+Robust standard errors are a way to get unbiased standard errors under heteroskedasticity.Heteroskedasticity --> Gauss MArkov violated --> estimates are not BLUE
+#https://economictheoryblog.com/2016/08/07/robust-standard-errors
+
+Economists care because they want to know how accurate their sample is compared to the population.Error more --> mean of sample more spread out --> representation less accurate 
+#https://s4be.cochrane.org/blog/2018/09/26/a-beginners-guide-to-standard-deviation-and-standard-error
+
+```{r}
+install.packages("wooldridge")
+library(wooldridge)
+install.packages("npsf")
+library(npsf)
+data(mroz)
+View(mroz)
+?mroz
+
+data(hprice1)
+View(hrpice)
+data("nswre74")
+
+View(wage1)
+
+```
+
+
+```{r}
+reg <- lm(data=wage1, wage~educ+exper)
+summary(reg)
+
+
+```
+https://declaredesign.org/r/estimatr/articles/mathematical-notes.html for the explanations
+
+
+
+## Estimators provided by Estimatr
+
+
++ lm_robust  
+  *linear regression models
+  *parameters and defaults
+  *explanation of results
+
+```{r}
+lm_robust(data=wage1, wage~educ+exper) #se_type = classical gives the lm result
+?lm_robust()
+
+
+```
+
++ lm_lin  
+  *used when independent variable undergoes treatment; includes pre treatment co-variates and then passed through lm_robust
+  *
+```{r}
+?lm_lin()
+#lm_lin(data=mroz, hours~kids, covariates=age)
+summary(mroz)
+
+#create a dummy for having kids
+ 
+```
+
++ iv_robust 
+  *2SLS estimation of IV regression
+```{r}
+
+# good IV = correlated with x but not with u; maybe experience 
+
+iv_robust(data=wage2, wage~educ|IQ)
+
+
+
+```
++ difference_in_means -
+```{r}
+#for variety of designs - unit randomized, cluster randomized, block randomized, matched pairs, etc
+#effects estimated with condition 1 = control and condition 2 = treatment 
+
+
+```
++ horvitz_thompson - 
+```{r}
+#population-level means and reg coeff 
+install.packages("survey")
+library(survey)
+
+View 
+```
+
+
+## Screenreg
+
+```{r}
+
+#LEARN
+```
+
+ 
+
+
+
+
