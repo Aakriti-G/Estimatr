@@ -1,0 +1,20 @@
+Detailed description of HC cluster types:
+
+1. HC0: The HC0 estimator is the simplest HC estimator and is equivalent to the standard OLS estimator. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
+2. HC1 (or "stata"): The HC1 estimator is similar to the HC0 estimator, but it adjusts the standard errors to account for heteroscedasticity in the errors. It assumes that the errors are uncorrelated but allows for heteroscedasticity, and is equivalent to the "robust" estimator in Stata.
+3. HC2: The HC2 estimator is similar to the HC1 estimator, but it uses a different formula to calculate the adjustment for heteroscedasticity. It is a biased estimator but has been shown to have better properties than HC1 in some situations.
+- Quick note on why biased:
+    
+    the HC2 estimator is a biased estimator. The reason for this is that the formula used to calculate HC2 involves the use of a "small-sample" adjustment, which can introduce bias in the estimator. This adjustment is meant to account for the fact that the estimator is based on a limited sample of data and may not perfectly capture the population parameters.
+    
+    However, the extent of the bias introduced by HC2 is generally considered to be small and negligible for most practical purposes. HC2 has been shown to have better properties than HC1 in some situations, particularly when the sample size is small and the distribution of errors is non-normal.
+    
+    That being said, it's always a good idea to check the robustness of your results by using multiple types of robust standard errors, including HC1, HC3, and clustered standard errors.
+    
+4. HC3: The HC3 estimator is similar to the HC2 estimator, but it uses a different formula to adjust for heteroscedasticity and also accounts for small sample bias in the estimator. It is generally considered to be the most reliable HC estimator for small to moderate sample sizes.
+5. Classical: The classical estimator is the OLS estimator with no adjustment for heteroscedasticity or clustering. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
+
+In addition to these HC types, the **`estimatr`** package also provides two types of clustered standard errors:
+
+1. CR0: The CR0 estimator is a clustered standard error estimator that assumes that the errors are homoscedastic and uncorrelated within clusters, but allows for arbitrary correlation between clusters. It is the simplest clustered standard error estimator and is equivalent to the "cluster-robust" estimator in Stata.
+2. CR2 (or "stata"): The CR2 estimator is a clustered standard error estimator that adjusts for both heteroscedasticity and clustering. It is equivalent to the "vce(cluster)" estimator in Stata and is the default clustered standard error estimator in the **`estimatr`** package.
