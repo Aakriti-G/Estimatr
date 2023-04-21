@@ -11,61 +11,87 @@ knitr::opts_chunk$set(echo = TRUE)
 # Guide To Estimatr
 
 ```{r}
+install.packages("wooldridge")
+
+install.packages("npsf")
+library(npsf)
+
+data(mroz)
+data(hprice1)
+data("nswre74")
+
+
+```
+
+Standard errors are essential for researchers running a regression as they assess how accurately the sample data represents the total population. The standard errors of a regression on R are obtained using the lm() function as so:
+```{r}
+library(wooldridge)
+reg <- lm(data=wage1, wage~educ)
+summary(reg)
+
+#https://declaredesign.org/r/estimatr/articles/mathematical-notes.html for the explanations
+```
+
+However the lm()function is designed to fit linear models which assume homoscedasticity i.e. a constant error term along all independent variables. 
+
+In the case of heteroscedasticity, robust standard errors are a way to get unbiased standard errors. 
+
+R offers a package called 'Estimatr' which provides various functions to get estimates with their robust errors.
+
+```{r}
 install.packages("estimatr")
 library(estimatr)
 
-
 ```
-
-## What are robust standard errors?
-Robust standard errors are a way to get unbiased standard errors under heteroskedasticity.Heteroskedasticity --> Gauss MArkov violated --> estimates are not BLUE
-#https://economictheoryblog.com/2016/08/07/robust-standard-errors
-
-Economists care because they want to know how accurate their sample is compared to the population.Error more --> mean of sample more spread out --> representation less accurate 
-#https://s4be.cochrane.org/blog/2018/09/26/a-beginners-guide-to-standard-deviation-and-standard-error
-
-```{r}
-install.packages("wooldridge")
-library(wooldridge)
-install.packages("npsf")
-library(npsf)
-data(mroz)
-View(mroz)
-?mroz
-
-data(hprice1)
-View(hrpice)
-data("nswre74")
-
-View(wage1)
-
-```
-
-
-```{r}
-reg <- lm(data=wage1, wage~educ+exper)
-summary(reg)
-
-
-```
-https://declaredesign.org/r/estimatr/articles/mathematical-notes.html for the explanations
-
 
 
 ## Estimators provided by Estimatr
 
 
 + lm_robust  
-  *linear regression models
-  *parameters and defaults
-  *explanation of results
+  *
 
 ```{r}
-lm_robust(data=wage1, wage~educ+exper) #se_type = classical gives the lm result
+lm_robust(data=wage1, wage~educ+exper)
+#se_type = classical gives the lm result
+#cluster errors
 ?lm_robust()
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 + lm_lin  
   *used when independent variable undergoes treatment; includes pre treatment co-variates and then passed through lm_robust
