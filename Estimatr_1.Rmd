@@ -5,82 +5,95 @@ date: '2023-04-10'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-# Guide To Estimatr
+# Overview
+
+The estimatr package is a specialized tool in R that offers quick and efficient estimators for commonly used research designs in the social sciences. Several of the estimators available in the R or other popular packages are sluggish and can produce inappropriate estimates due to their default settings. Moreover, some of the latest and most advanced estimators have not yet been conveniently incorporated into R packages. `estimatr` aims to address these issues by offering estimators that are optimized for design-based inference, resulting in more accurate and reliable estimates.
+
+Using the `wage1` dataset, we will walk you through the process of estimating regression coefficients while accounting for potential sources of bias and violations of statistical assumptions using two of the most commonly used functions in estimatr: `lm_robust()` and `iv_robust()`.
+
+- explain the wage 1 dataset here: make a table of `variable | Description ` 
+
+# Load Packages
 
 ```{r}
-install.packages("wooldridge")
 
-install.packages("npsf")
-library(npsf)
-
-data(mroz)
-data(hprice1)
-data("nswre74")
+# Load the estimatr package
+library(estimatr)
+# Load the wage1 dataset from the wooldridge package
+library(wooldridge) 
+data("wage1")
 
 
 ```
 
-Standard errors are essential for researchers running a regression as they assess how accurately the sample data represents the total population. 
-Below, we have presented an example using the 'wage1' package from the 'wooldrigde'package. We are interested in analyzing the effect of education of an employee on the wages they earn. The standard errors of this regression on R are obtained using the lm() function as so:
+
+
+
+# Estimate Linear Models using lm_robust
+
+In regression analysis, standard errors are important for assessing the precision of estimates and determining whether the results obtained from a sample accurately represent the underlying population. In this example, we are interested in examining how the education level of employees relates to their wages. Let's first use the built-in lm() function to estimate this linear model. 
+
+- write down the estimation equation here
+
+
 ```{r}
-library(wooldridge)
+
 reg <- lm(data=wage1, wage~educ)
 summary(reg)
 
 #https://declaredesign.org/r/estimatr/articles/mathematical-notes.html for the explanations
 ```
 
-However the lm()function is designed to fit linear models which assume homoscedasticity i.e. a constant error term along all independent variables. 
+- describe the homoscedasticity assumption briefly, why is it important. 
+- add code and plots to check if the assumption holds 
 
-In the case of heteroscedasticity, robust standard errors are a way to get unbiased standard errors. 
-
-R offers a package called 'Estimatr' which provides various functions to get estimates with their robust errors.
-
-```{r}
-install.packages("estimatr")
-library(estimatr)
-
-```
+However the lm()function is designed to fit linear models which assume homoscedasticity i.e. a constant error term along all independent variables. In the case of heteroscedasticity, robust standard errors are a way to get unbiased standard errors. 
 
 
-## Estimators provided by Estimatr
 
-
-+ lm_robust  
-This function is used to get the robust standard errors from a linear regression model. Below we have used the same example as the one before but this time we try to get robust standard errors.
+This `lm_robust()` function is used to get the robust standard errors from a linear regression model. Now, let's re-estimate the model using robust standard errors. 
 
 ```{r}
 lm_robust(data=wage1, wage~educ, se_type = "HC2")
-?lm_robust()
 ```
 The result shows that the standard errors are different from those obtained when homoscedasticity is assumed.
-For lm_robust we care about 2 important arguments: se_type and clusters.
 
-Detailed description of HC cluster types:
+## Heteroskedasticity-Robust Standard Errors
 
-1. HC0: The HC0 estimator is the simplest HC estimator and is equivalent to the standard OLS estimator. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
-2. HC1 (or "stata"): The HC1 estimator is similar to the HC0 estimator, but it adjusts the standard errors to account for heteroscedasticity in the errors. It assumes that the errors are uncorrelated but allows for heteroscedasticity, and is equivalent to the "robust" estimator in Stata.
-3. HC2: The HC2 estimator is similar to the HC1 estimator, but it uses a different formula to calculate the adjustment for heteroscedasticity. It is a biased estimator but has been shown to have better properties than HC1 in some situations.
-- Quick note on why biased:
-    
-    the HC2 estimator is a biased estimator. The reason for this is that the formula used to calculate HC2 involves the use of a "small-sample" adjustment, which can introduce bias in the estimator. This adjustment is meant to account for the fact that the estimator is based on a limited sample of data and may not perfectly capture the population parameters.
-    
-    However, the extent of the bias introduced by HC2 is generally considered to be small and negligible for most practical purposes. HC2 has been shown to have better properties than HC1 in some situations, particularly when the sample size is small and the distribution of errors is non-normal.
-    
-    That being said, it's always a good idea to check the robustness of your results by using multiple types of robust standard errors, including HC1, HC3, and clustered standard errors.
-    
-4. HC3: The HC3 estimator is similar to the HC2 estimator, but it uses a different formula to adjust for heteroscedasticity and also accounts for small sample bias in the estimator. It is generally considered to be the most reliable HC estimator for small to moderate sample sizes.
-5. Classical: The classical estimator is the OLS estimator with no adjustment for heteroscedasticity or clustering. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
+The lm_robust() function in the estimatr package provides several options for calculating standard errors of regression coefficients using the se_type argument. The available options are:
 
-In addition to these HC types, the **`estimatr`** package also provides two types of clustered standard errors:
+se_type = "classical": This is the default option, which uses the classical or ordinary least squares (OLS) estimator to calculate standard errors. It assumes that the error terms are homoscedastic and uncorrelated with the independent variables.
 
-1. CR0: The CR0 estimator is a clustered standard error estimator that assumes that the errors are homoscedastic and uncorrelated within clusters, but allows for arbitrary correlation between clusters. It is the simplest clustered standard error estimator and is equivalent to the "cluster-robust" estimator in Stata.
-2. CR2 (or "stata"): The CR2 estimator is a clustered standard error estimator that adjusts for both heteroscedasticity and clustering. It is equivalent to the "vce(cluster)" estimator in Stata and is the default clustered standard error estimator in the **`estimatr`** package.
+se_type = "HC0": This option uses the heteroscedasticity-consistent (HC0) estimator to calculate standard errors. It allows for heteroscedasticity in the error terms, but does not correct for small sample bias.
+
+se_type = "HC1": This option uses the HC1 estimator to calculate standard errors. It is similar to the HC0 estimator, but includes a small sample correction to improve the accuracy of standard errors.
+
+se_type = "HC2": This option uses the HC2 estimator to calculate standard errors. It is similar to the HC1 estimator, but includes a different small sample correction.
+
+se_type = "HC3": This option uses the HC3 estimator to calculate standard errors. It is similar to the HC2 estimator, but includes a more robust small sample correction that is less sensitive to outliers.
+
+In summary, these options allow the user to choose between different types of standard errors that are appropriate for different assumptions about the error terms and sample size. The HC estimators are particularly useful when there is heteroscedasticity in the error terms, which violates the assumptions of the classical estimator.
+
+## Cluster-Robust Standard Errors
+Data is considered to be clustered when there are subsamples within the data that are related to each other. When error terms are correlated within clusters but independent across clusters, then regular standard errors, which assume independence between all observations, will be incorrect. Cluster-robust standard errors are designed to allow for correlation between observations within cluster. 
+
+For cluster-robust inference, this package provides several estimators that are essentially analogs of the heteroskedastic-consistent variance estimators for the clustered case: `CR0` and `CR2`. The default is the `CR2` variance estimator, analogous to HC2 standard errors, and perform quite well in small samples without sacrificing much in the way of efficiency in larger samples.
 
 
+# Tip:
+Check out the [mathematical notes](https://declaredesign.org/r/estimatr/articles/mathematical-notes.html) for each of the estimators to better understand the formulas used to compute these standard errors and a discussion on the use-cases for the different standard errors and cluster types.
+
+# Estimate Instrumental Variable (IV) regressions using iv_robust
+
+- provide brief description on IV regressions, when is it useful 
+
+- Explain the example case 
+
+- specify the model/equation we estimate in this here
+
+- specify with robust se 
+
+- add other relevant content 
 
 
 
@@ -95,3 +108,7 @@ iv_robust(data=wage2, wage~educ|IQ)
 
 
 ```
+
+# Summary 
+
+- write bullet point summaries of key take-aways from this building block
