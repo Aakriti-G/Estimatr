@@ -23,7 +23,8 @@ data("nswre74")
 
 ```
 
-Standard errors are essential for researchers running a regression as they assess how accurately the sample data represents the total population. The standard errors of a regression on R are obtained using the lm() function as so:
+Standard errors are essential for researchers running a regression as they assess how accurately the sample data represents the total population. 
+Below, we have presented an example using the 'wage1' package from the 'wooldrigde'package. We are interested in analyzing the effect of education of an employee on the wages they earn. The standard errors of this regression on R are obtained using the lm() function as so:
 ```{r}
 library(wooldridge)
 reg <- lm(data=wage1, wage~educ)
@@ -49,61 +50,39 @@ library(estimatr)
 
 
 + lm_robust  
-  *
+This function is used to get the robust standard errors from a linear regression model. Below we have used the same example as the one before but this time we try to get robust standard errors.
 
 ```{r}
-lm_robust(data=wage1, wage~educ+exper)
-#se_type = classical gives the lm result
-#cluster errors
+lm_robust(data=wage1, wage~educ, se_type = "HC2")
 ?lm_robust()
-
-
 ```
+The result shows that the standard errors are different from those obtained when homoscedasticity is assumed.
+For lm_robust we care about 2 important arguments: se_type and clusters.
+
+Detailed description of HC cluster types:
+
+1. HC0: The HC0 estimator is the simplest HC estimator and is equivalent to the standard OLS estimator. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
+2. HC1 (or "stata"): The HC1 estimator is similar to the HC0 estimator, but it adjusts the standard errors to account for heteroscedasticity in the errors. It assumes that the errors are uncorrelated but allows for heteroscedasticity, and is equivalent to the "robust" estimator in Stata.
+3. HC2: The HC2 estimator is similar to the HC1 estimator, but it uses a different formula to calculate the adjustment for heteroscedasticity. It is a biased estimator but has been shown to have better properties than HC1 in some situations.
+- Quick note on why biased:
+    
+    the HC2 estimator is a biased estimator. The reason for this is that the formula used to calculate HC2 involves the use of a "small-sample" adjustment, which can introduce bias in the estimator. This adjustment is meant to account for the fact that the estimator is based on a limited sample of data and may not perfectly capture the population parameters.
+    
+    However, the extent of the bias introduced by HC2 is generally considered to be small and negligible for most practical purposes. HC2 has been shown to have better properties than HC1 in some situations, particularly when the sample size is small and the distribution of errors is non-normal.
+    
+    That being said, it's always a good idea to check the robustness of your results by using multiple types of robust standard errors, including HC1, HC3, and clustered standard errors.
+    
+4. HC3: The HC3 estimator is similar to the HC2 estimator, but it uses a different formula to adjust for heteroscedasticity and also accounts for small sample bias in the estimator. It is generally considered to be the most reliable HC estimator for small to moderate sample sizes.
+5. Classical: The classical estimator is the OLS estimator with no adjustment for heteroscedasticity or clustering. It assumes that the errors are homoscedastic and uncorrelated, and ignores any clustering or group structure in the data.
+
+In addition to these HC types, the **`estimatr`** package also provides two types of clustered standard errors:
+
+1. CR0: The CR0 estimator is a clustered standard error estimator that assumes that the errors are homoscedastic and uncorrelated within clusters, but allows for arbitrary correlation between clusters. It is the simplest clustered standard error estimator and is equivalent to the "cluster-robust" estimator in Stata.
+2. CR2 (or "stata"): The CR2 estimator is a clustered standard error estimator that adjusts for both heteroscedasticity and clustering. It is equivalent to the "vce(cluster)" estimator in Stata and is the default clustered standard error estimator in the **`estimatr`** package.
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-+ lm_lin  
-  *used when independent variable undergoes treatment; includes pre treatment co-variates and then passed through lm_robust
-  *
-```{r}
-?lm_lin()
-#lm_lin(data=mroz, hours~kids, covariates=age)
-summary(mroz)
-
-#create a dummy for having kids
- 
-```
 
 + iv_robust 
   *2SLS estimation of IV regression
@@ -116,32 +95,3 @@ iv_robust(data=wage2, wage~educ|IQ)
 
 
 ```
-+ difference_in_means -
-```{r}
-#for variety of designs - unit randomized, cluster randomized, block randomized, matched pairs, etc
-#effects estimated with condition 1 = control and condition 2 = treatment 
-
-
-```
-+ horvitz_thompson - 
-```{r}
-#population-level means and reg coeff 
-install.packages("survey")
-library(survey)
-
-View 
-```
-
-
-## Screenreg
-
-```{r}
-
-#LEARN
-```
-
- 
-
-
-
-
