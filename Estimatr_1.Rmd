@@ -17,7 +17,7 @@ The estimatr package is a specialized tool in R that offers quick and efficient 
 
 Using the `wage2` data set, we will walk you through the process of estimating regression coefficients while accounting for potential sources of bias and violations of statistical assumptions using two of the most commonly used functions in estimatr: `lm_robust()` and `iv_robust()`.
 
-The `wage2` data set is found in the wooldridge R package.It has 935 observations on 17 variables,some of which are:
+The `wage2` data set is found in the wooldridge R package.It has 935 observations on 17 variables. We will use the following variables in this example:
 
 | Variable | Description            |
 | :------  | :---------             |
@@ -41,7 +41,7 @@ data(wage2)
 
 #Estimate linear models using lm_robust
 
-In regression analysis, standard errors are important for assessing the precision of estimates and determining whether the results obtained from a sample accurately represent the underlying population. In this example, we are interested in examining how the education level of employees relates to their wages. Let's first use the built-in lm() function to estimate this linear model. 
+In this example, we are interested in examining how the education level of employees relates to their wages. Let's first use the built-in lm() function to estimate this linear model. 
 
 
 $$
@@ -53,7 +53,7 @@ reg <- lm(data=wage2, wage~educ)
 summary(reg)
 ```
 
-However the lm()function is designed to fit linear models which assume homoscedasticity. This assumption states that the variance of the error terms is the same across all the independent variables. If this assumption is violated the regression estimates remain unbiased and consistent but they are no longer efficient. And because of the inconsistency of the covariance matrix of the estimated regression coefficients, the tests of hypotheses (t-test, f-test) are no longer valid. Therefore, it is important to check if the assumption for homoscedasticity holds for our regression.
+The lm() function is specifically designed to fit linear models that assume homoscedasticity, which means that the variance of the error terms is constant across all independent variables. However, if this assumption is violated, the regression estimates will still be unbiased and consistent, but they will not be as efficient. In addition, the covariance matrix of the estimated regression coefficients will be inconsistent, rendering tests of hypotheses invalid. Therefore, it is crucial to verify whether the assumption of homoscedasticity holds for our regression.
 
 To do so, we construct a scatterplot of the residuals of the regression against the independent variables. The resulting plot should show a random pattern of points with no discernible trend or shape. If there is a visible pattern, such as a cone or a fan shape, this suggests that the variance of the residuals changes across the range of predicted values, indicating the presence of heteroscedasticity. If the spread of the residuals appears roughly constant, then homoscedasticity is likely to hold. 
 
@@ -109,9 +109,9 @@ For cluster-robust inference, this package provides several estimators that are 
 Check out the [mathematical notes](https://declaredesign.org/r/estimatr/articles/mathematical-notes.html) for each of the estimators to better understand the formulas used to compute these standard errors and a discussion on the use-cases for the different standard errors and cluster types.
 
 # Estimate Instrumental Variable (IV) regressions using iv_robust
-An instrumental variable is a variable, Z, used in regression analysis when you have endogenous variables i.e. variables that are influenced by other variables in the model. The Instrumental Variables (IV) regression controls for threats to internal validity such as confounding variables, measurement error, omitted variable bias (spuriousness), simultaneity and reverse causality. A good instrument is the one which is correlated with the independent variable, X but not with the error term, i.e. it affects the outcome variable,Y only through X. 
+The iv_robust function is used to estimate Instrumental Variable (IV) regressions. An instrumental variable, denoted as Z, is used in regression analysis when there are endogenous variables, which are variables that are influenced by other variables in the model. The IV regression controls for threats to internal validity, such as confounding variables, measurement error, omitted variable bias (spuriousness), simultaneity, and reverse causality. A good instrument is one that is correlated with the independent variable, X, but not with the error term. In other words, it affects the outcome variable, Y, only through X.
 
-In the previous example, we aim to show whether the level of education of an employee affects their wage. However, we fail to account for other variables, such as the IQ of the employee which is a potential confounding variable, meaning that it may affect both education and wage, and ignoring it in the analysis may lead to omitted variable bias. Therefore, we can include IQ as an instrument variable in a 2-Stage Least Squares (2SLS) analysis of the relationship between wage and education. 
+For instance, in our example  on the effect of education on employee wage, the IQ of the employee may be a potential confounding variable, as it may affect both education and wage. Ignoring IQ in the analysis may lead to omitted variable bias. Therefore, including IQ as an instrument variable in a 2-Stage Least Squares (2SLS) analysis of the relationship between wage and education can address the endogeneity issue and produce unbiased estimates.
 
 Let's estimate this IV regression.
 
