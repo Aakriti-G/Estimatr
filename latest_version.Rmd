@@ -3,17 +3,20 @@ title: "latest_version"
 output: html_document
 ---
 # Overview
-The `estimatr` package is a specialized tool in R that offers quick and efficient estimators for commonly used research designs. Several of the estimators available in the R or other popular packages are sluggish and can produce inappropriate estimates due to their default settings. Moreover, some of the latest and most advanced estimators have not yet been conveniently incorporated into R packages. `estimatr` aims to address these issues by offering estimators that are optimized for design-based inference, resulting in more accurate and reliable estimates.
+The `estimatr` package is a specialized tool in R that is optimized for design-based inference resulting in accurate and reliable estimates as it accounts for potential sources of bias and violations of statistical assumptions.
+ 
+In this building block we will walk you through the process of estimating regression coefficients using the most commonly used functions in estimatr: `lm_robust()` and `iv_robust()`. We analyse data from the`wage2`[data set] (https://rdrr.io/cran/wooldridge/man/wage2.html) which is an in-built data set in R, provided by the `wooldridge` package. We are interested in examining how the education level of employees relates to their wages and to do so we use the following regression model:
 
-Using the `wage2` [data set](https://rdrr.io/cran/wooldridge/man/wage2.html), we will walk you through the process of estimating regression coefficients while accounting for potential sources of bias and violations of statistical assumptions using two of the most commonly used functions in estimatr: `lm_robust()` and `iv_robust()`.
+{{<katex>}}
+Wage_{i}  =  \beta_{0} + \beta_{1} Educ_{i} + \mu
+{{</katex>}}
 
-The dataset has 935 observations on 17 variables. We will use the following variables in this example:
-
+where, 
 | **Variable** | **Description**            |
 | :------  | :---------             |
 | `wage`     | monthly earnings       |
 | `educ`     | years of education     |
-| `IQ`       | IQ score               |
+
 
 ## Load packages
 
@@ -31,13 +34,13 @@ data(wage2)
 {{% /codeblock %}}  
 
 
-In this example, we are interested in examining how the education level of employees relates to their wages. Let's first use the built-in `lm()` function to estimate this linear model.
+## Estimating regression models without using `estimatr`
 
+Before diving into the `estimatr` package, let's first use the built-in `lm()` function to estimate our linear model.
 
 {{<katex>}}
 Wage_{i}  =  \beta_{0} + \beta_{1} Educ_{i} + \mu
 {{</katex>}}
-
 
 
 {{% codeblock %}}
@@ -47,11 +50,12 @@ summary(reg)
 ```
 {{% /codeblock %}}  
 
-The `lm()` function is specifically designed to fit linear models that assume homoscedasticity, which means that the variance of the error terms is constant across all independent variables. However, if this assumption is violated, the regression estimates will still be unbiased and consistent, but they will not be as efficient. In addition, the covariance matrix of the estimated regression coefficients will be inconsistent, rendering tests of hypotheses invalid. If the homoscedasticity assumption is violated, the `estimatr` package offers quick and easy ways to adjust standard errors, allowing for robust and clustered standard errors.
+The resulting regression estimate are prone to error and inefficiency because `lm()` function is specifically designed to fit linear models that assumes homoscedasticity, which may not always hold true. 
+That is why using the `estimatr` package is a better option because in the case of the homoscedasticity assumption being violated, this package offers quick and easy ways to adjust standard errors, allowing for robust and clustered standard errors.
 
 ## Estimate Linear Models Using lm_robust
 
-The `lm_robust()` function is used to get the robust standard errors from a linear regression model. Now, let's re-estimate the model using robust standard errors.
+The `lm_robust()` function is used to get the robust standard errors from a linear regression model. Let's re-estimate the model using robust standard errors.
 
 {{% codeblock %}}
 ```R
