@@ -34,7 +34,7 @@ data(wage2)
 {{% /codeblock %}}  
 
 
-## Estimating regression models without using `estimatr`
+## Model Estimation
 
 Before diving into the `estimatr` package, let's first use the built-in `lm()` function to estimate our linear model,
 
@@ -53,7 +53,7 @@ summary(reg)
 The resulting regression estimates are prone to error and inefficiency because `lm()` function is specifically designed to fit linear models that assumes homoscedasticity, which may not always hold true. 
 Therefore, using the `estimatr` package is a better option, because in the case of the homoscedasticity assumption being violated, this package offers quick and easy ways to adjust standard errors, allowing for robust and clustered standard errors.
 
-## Estimate Linear Models Using lm_robust
+### Estimate with lm_robust
 
 The `lm_robust()` function is used to get the robust standard errors from a linear regression model.
 
