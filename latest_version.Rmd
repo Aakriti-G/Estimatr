@@ -1,11 +1,11 @@
 ---
-title: "latest_version"
+title: "Introduction to Estimatr"
 output: html_document
 ---
 # Overview
 The `estimatr` package is a specialized tool in R that is optimized for design-based inference resulting in accurate and reliable estimates as it accounts for potential sources of bias and violations of statistical assumptions.
  
-In this building block we will walk you through the process of estimating regression coefficients using the most commonly used functions in estimatr: `lm_robust()` and `iv_robust()`. We analyse data from the`wage2`[data set] (https://rdrr.io/cran/wooldridge/man/wage2.html) which is an in-built data set in R, provided by the `wooldridge` package. We are interested in examining how the education level of employees relates to their wages and to do so we use the following regression model:
+In this building block we will walk you through the process of estimating regression coefficients using the most commonly used functions in `estimatr`: `lm_robust()` and `iv_robust()`. We analyse data from the`wage2`[data set] (https://rdrr.io/cran/wooldridge/man/wage2.html) which is an in-built data set in R, provided by the `wooldridge` package. We are interested in examining how the education level of employees relates to their wages and to do so we use the following regression model:
 
 {{<katex>}}
 Wage_{i}  =  \beta_{0} + \beta_{1} Educ_{i} + \mu
@@ -36,7 +36,7 @@ data(wage2)
 
 ## Estimating regression models without using `estimatr`
 
-Before diving into the `estimatr` package, let's first use the built-in `lm()` function to estimate our linear model.
+Before diving into the `estimatr` package, let's first use the built-in `lm()` function to estimate our linear model,
 
 {{<katex>}}
 Wage_{i}  =  \beta_{0} + \beta_{1} Educ_{i} + \mu
@@ -50,12 +50,14 @@ summary(reg)
 ```
 {{% /codeblock %}}  
 
-The resulting regression estimate are prone to error and inefficiency because `lm()` function is specifically designed to fit linear models that assumes homoscedasticity, which may not always hold true. 
-That is why using the `estimatr` package is a better option because in the case of the homoscedasticity assumption being violated, this package offers quick and easy ways to adjust standard errors, allowing for robust and clustered standard errors.
+The resulting regression estimates are prone to error and inefficiency because `lm()` function is specifically designed to fit linear models that assumes homoscedasticity, which may not always hold true. 
+Therefore, using the `estimatr` package is a better option, because in the case of the homoscedasticity assumption being violated, this package offers quick and easy ways to adjust standard errors, allowing for robust and clustered standard errors.
 
 ## Estimate Linear Models Using lm_robust
 
-The `lm_robust()` function is used to get the robust standard errors from a linear regression model. Let's re-estimate the model using robust standard errors.
+The `lm_robust()` function is used to get the robust standard errors from a linear regression model.
+
+Let's re-estimate the model using robust standard errors.
 
 {{% codeblock %}}
 ```R
@@ -63,48 +65,48 @@ lm_robust(data=wage2, wage~educ, se_type = "HC2")
 ```
 {{% /codeblock %}}  
 
+It is interesting to observe that the standard errors are different from those obtained before, which shows that `estimatr` adjusted for heteroscedasticity in the regression model giving us efficient robust standard errors.
 
-## Heteroskedasticity-Robust Standard Errors
 
-The lm_robust() function in the estimatr package provides several options for calculating standard errors of regression coefficients using the `se_type` argument. The available options are:
+Notice the argument, `se_type`. It refers to the sort of standard error that one seeks for in the model. If nothing is specified, `estimatr` takes `HC2` as a default option which uses the HC2 (heteroscedasticity-consistent 2) estimator and includes a small sample correction to improve the accuracy of the standard errors.
 
-- `classical`: This is the default option, which uses the classical or ordinary least squares (OLS) estimator to calculate standard errors. It assumes that the error terms are homoscedastic and uncorrelated with the independent variables.
+However, there are different `se_types` that are appropriate for different assumptions about the error terms and sample size, and one can accordingly choose from them:
+
+- `classical`: This option uses the classical or ordinary least squares (OLS) estimator to calculate standard errors. It assumes that the error terms are homoscedastic and uncorrelated with the independent variables.
+
+{{% codeblock %}}
+```R
+lm_robust(data=wage2, wage~educ, se_type = "classical")
+```
+{{% /codeblock %}} 
+
+We can observe that this option gives us exactly the same result as we obtained with the `lm()` function.
+
 
 - `HC0`: This option uses the heteroscedasticity-consistent estimator to calculate standard errors. It allows for heteroscedasticity in the error terms, but does not correct for small sample bias.
 
-- `HC1`: This option uses the HC1 estimator to calculate standard errors. It is similar to the HC0 estimator, but includes a small sample correction to improve the accuracy of standard errors.
-
-- `HC2`: This option uses the HC2 estimator to calculate standard errors. It is similar to the HC1 estimator, but includes a different small sample correction.
+- `HC1`: This option uses the HC1 estimator to calculate standard errors. It is similar to the HC0 estimator, but includes a different sample correction than the HC2 estimator.
 
 - `HC3`: This option uses the HC3 estimator to calculate standard errors. It is similar to the HC2 estimator, but includes a more robust small sample correction that is less sensitive to outliers.
 
-In summary, these options allow the user to choose between different types of standard errors that are appropriate for different assumptions about the error terms and sample size. The HC estimators are particularly useful when there is heteroscedasticity in the error terms, which violates the assumptions of the classical estimator.
+
 
 ## Cluster-Robust Standard Errors
-Data is considered to be clustered when there are subsamples within the data that are related to each other. When error terms are correlated within clusters but independent across clusters, then regular standard errors, which assume independence between all observations, will be incorrect. Cluster-robust standard errors are designed to allow for correlation between observations within cluster.
-For cluster-robust inference, this package provides several estimators that are essentially analogs of the heteroskedastic-consistent variance estimators for the clustered case: `CR0` and `CR2`. The default is the `CR2` variance estimator, analogous to `HC2` standard errors, and perform quite well in small samples without sacrificing much in the way of efficiency in larger samples.
+ 
+Cluster-robust standard errors are designed to allow for correlation between observations within a cluster. 
+For cluster-robust inference, this package provides several estimators that are essentially analogs of the heteroskedastic-consistent variance estimators for the clustered case: `CR0` and `CR2`(default).
+
+
+
 
 {{% tip %}}
 Check out the [mathematical notes](https://declaredesign.org/r/estimatr/articles/mathematical-notes.html) for each of the estimators to better understand the formulas used to compute these standard errors to have a more granular understanding of the different use-cases of the different types.
 {{% /tip %}}  
 
 ## Estimate Instrumental Variable (IV) Regressions Using iv_robust
-The `iv_robust` function is used to estimate Instrumental Variable (IV) regressions. An instrumental variable, denoted as Z, is used in regression analysis when there are endogenous variables, which are variables that are influenced by other variables in the model. The IV regression controls for threats to internal validity, such as confounding variables, measurement error, omitted variable bias (spuriousness), simultaneity, and reverse causality. A good instrument is one that is correlated with the independent variable, X, but not with the error term. In other words, it affects the outcome variable, Y, only through X.
+The `iv_robust` function is used to estimate Instrumental Variable (IV) regressions.
 
-For instance, in our example  on the effect of education on employee wage, the IQ of the employee may be a potential confounding variable, as it may affect both education and wage. Ignoring IQ in the analysis may lead to omitted variable bias. Therefore, including IQ as an instrument variable in a 2-Stage Least Squares (2SLS) analysis of the relationship between wage and education can address the endogeneity issue and produce unbiased estimates.
-
-Let's estimate this IV regression.
-
-First stage regression:
-$$
-Educ_{i} = \gamma_{0} + \gamma_{1} IQ_{i} + \mu
-$$
-
-
-Second stage regression:
-$$
-Wage_{i} = \beta_{0} + \beta_{1} \hat{Educ_{i}} + \epsilon
-$$
+Suppose IQ is a potential instrument (i.e it correlated with education but not with the error term) we can obtain the standard errors in the following way: 
 
 {{% codeblock %}}
 ```R
