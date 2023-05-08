@@ -96,6 +96,28 @@ We can observe that this option gives us exactly the same result as we obtained 
 Cluster-robust standard errors are designed to allow for correlation between observations within a cluster. 
 For cluster-robust inference, this package provides several estimators that are essentially analogs of the heteroskedastic-consistent variance estimators for the clustered case: `CR0` and `CR2`(default).
 
+For illustrative purposes let's create an `ID` variable that will be used as a cluster variable. 
+{{% codeblock %}}
+```R
+install.packages("dplyr")  # If not already installed
+library(dplyr)
+
+# Creating an ID column using row_number()
+wage2 <- wage2 %>%
+  mutate(ID = row_number())
+  
+```
+{{% /codeblock %}} 
+
+Now estimate the model with cluster-robust standard errors:
+{{% codeblock %}}
+```R
+lm_robust(data=wage2, wage~educ, se_type = "CR2", cluster = wage2$ID)
+
+  
+```
+{{% /codeblock %}} 
+
 
 
 
